@@ -1,25 +1,25 @@
 #level5（ctf-wiki）
- __libc_csu_init函数会对libc进行初始化，因此当我们找不到合适的与寄存器相关的gadgets时，我们可以从 __libc_csu_init入手寻找gadgets
-首先使用objdump观察__libc_csu_init
-[](image/1.png)
-[](image/2.png)
-运行一下程序
-发现是一个简单的输入程序
-[](image/3.png)
-调用了read函数读取输入
-那么首先利用pattern找到溢出点
-[](image/4.png)
-程序中没有system函数和\bin\sh字符串，所以需要通过输入的方式进行构造
-利用的四个步骤：
-1、通过溢出执行write函数泄露出write函数本身的地址，再跳回到main函数中继续执行。
-2、利用write函数的地址确定对应的libc版本，然后算出execve的位置。
-3、通过溢出执行read函数，将execve与关键字符串写入到bss段中，再跳回到main函数继续执行。
-4、通过溢出执行bss段内的execve函数。
-需要涉及到的知识点
-1、64位程序的前六个参数通过寄存器传递。%rdi，%rsi，%rdx，%rcx，%r8，%r9 用作函数参数，依次对应第1参数，第2参数。。。
-2、read函数可以进行输入，write函数可以进行输出，fd=0为标准输入，df=1为标准输出。
+ __libc_csu_init函数会对libc进行初始化，因此当我们找不到合适的与寄存器相关的gadgets时，我们可以从 __libc_csu_init入手寻找gadgets  
+首先使用objdump观察__libc_csu_init  
+[](image/1.png)  
+[](image/2.png)  
+运行一下程序  
+发现是一个简单的输入程序  
+[](image/3.png)  
+调用了read函数读取输入  
+那么首先利用pattern找到溢出点  
+[](image/4.png)  
+程序中没有system函数和\bin\sh字符串，所以需要通过输入的方式进行构造  
+利用的四个步骤：  
+1、通过溢出执行write函数泄露出write函数本身的地址，再跳回到main函数中继续执行。  
+2、利用write函数的地址确定对应的libc版本，然后算出execve的位置。  
+3、通过溢出执行read函数，将execve与关键字符串写入到bss段中，再跳回到main函数继续执行。  
+4、通过溢出执行bss段内的execve函数。  
+需要涉及到的知识点  
+1、64位程序的前六个参数通过寄存器传递。%rdi，%rsi，%rdx，%rcx，%r8，%r9 用作函数参数，依次对应第1参数，第2参数。。。  
+2、read函数可以进行输入，write函数可以进行输出，fd=0为标准输入，df=1为标准输出。  
 
-完整代码
+完整代码  
 ```
 from pwn import *
 from LibcSearcher import *

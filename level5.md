@@ -1,14 +1,14 @@
 #level5（ctf-wiki）
  __libc_csu_init函数会对libc进行初始化，因此当我们找不到合适的与寄存器相关的gadgets时，我们可以从 __libc_csu_init入手寻找gadgets  
 首先使用objdump观察__libc_csu_init  
-[](image/1.png)  
-[](image/2.png)  
+![](image/1.jpg)  
+![](image/2.jpg)  
 运行一下程序  
 发现是一个简单的输入程序  
-[](image/3.png)  
+![](image/3.jpg)  
 调用了read函数读取输入  
 那么首先利用pattern找到溢出点  
-[](image/4.png)  
+![](image/4.jpg)  
 程序中没有system函数和\bin\sh字符串，所以需要通过输入的方式进行构造  
 利用的四个步骤：  
 1、通过溢出执行write函数泄露出write函数本身的地址，再跳回到main函数中继续执行。  
